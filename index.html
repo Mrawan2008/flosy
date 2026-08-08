@@ -1,0 +1,736 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flosy — رفيقك المالي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&family=Tajawal:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FAF9FF;
+    --surface:#FFFFFF;
+    --surface-soft:#F5F1FD;
+    --purple-900:#2E1257;
+    --purple-800:#3E1975;
+    --purple-700:#5B21B6;
+    --purple-600:#7C3AED;
+    --purple-500:#9333EA;
+    --purple-400:#A78BFA;
+    --purple-200:#DDD3FB;
+    --purple-100:#EFE9FD;
+    --pink:#C026D3;
+    --text:#241A3B;
+    --text-muted:#7A7191;
+    --border:#E9E2FA;
+    --danger:#DC2626;
+    --danger-soft:#FDEDEE;
+    --success:#16A34A;
+    --success-soft:#EAFBF1;
+    --shadow-sm: 0 2px 8px rgba(93,33,182,0.06);
+    --shadow-md: 0 8px 24px rgba(93,33,182,0.10);
+    --shadow-lg: 0 16px 40px rgba(93,33,182,0.16);
+    --radius: 20px;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{
+    font-family:'Tajawal', sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.num, .brand{ font-family:'Cairo', sans-serif; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
+  input{ font-family:inherit; }
+  ::selection{ background:var(--purple-200); }
+
+  /* ---------- Hero / Top ---------- */
+  .hero{
+    position:relative;
+    background: radial-gradient(120% 160% at 20% 0%, #7C3AED 0%, #5B21B6 45%, #3E1975 100%);
+    color:#fff;
+    padding:22px 18px 76px;
+    overflow:hidden;
+  }
+  .hero::before{
+    content:"";
+    position:absolute; inset:0;
+    background:
+      radial-gradient(circle at 88% 10%, rgba(255,255,255,0.16) 0%, transparent 40%),
+      radial-gradient(circle at 10% 90%, rgba(192,38,211,0.35) 0%, transparent 45%);
+    pointer-events:none;
+  }
+  .hero-top{
+    display:flex; align-items:center; justify-content:space-between;
+    position:relative; z-index:2;
+  }
+  .brand{
+    display:flex; align-items:center; gap:8px;
+    font-weight:800; font-size:22px; letter-spacing:0.3px;
+  }
+  .brand svg{ width:30px; height:30px; }
+  .hero-body{
+    position:relative; z-index:2;
+    margin-top:22px;
+    text-align:center;
+  }
+  .hero-label{
+    font-size:13px; color:rgba(255,255,255,0.75); font-weight:500;
+  }
+  .hero-amount{
+    font-size:42px; font-weight:900; margin-top:6px;
+    display:flex; align-items:baseline; justify-content:center; gap:6px;
+  }
+  .hero-amount span.unit{ font-size:17px; font-weight:600; opacity:0.8; }
+  .hero-stats{
+    display:flex; justify-content:center; gap:10px;
+    margin-top:18px; position:relative; z-index:2;
+    flex-wrap:wrap;
+  }
+  .hero-chip{
+    background:rgba(255,255,255,0.14);
+    backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,0.18);
+    border-radius:14px;
+    padding:9px 14px;
+    font-size:12.5px;
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    min-width:96px;
+  }
+  .hero-chip b{ font-family:'Cairo',sans-serif; font-size:15px; font-weight:800; }
+
+  /* ---------- Nav ---------- */
+  .navbar{
+    position:sticky; top:0; z-index:20;
+    display:flex; gap:6px;
+    max-width:640px; margin:-46px auto 0;
+    background:var(--surface);
+    border-radius:18px;
+    padding:6px;
+    box-shadow:var(--shadow-lg);
+    border:1px solid var(--border);
+  }
+  .navbar button{
+    flex:1;
+    display:flex; flex-direction:column; align-items:center; gap:4px;
+    padding:11px 6px 9px;
+    border-radius:13px;
+    color:var(--text-muted);
+    font-size:12.5px;
+    font-weight:700;
+    transition:all .22s ease;
+  }
+  .navbar button svg{ width:20px; height:20px; transition:transform .22s ease; }
+  .navbar button.active{
+    background:linear-gradient(135deg, var(--purple-600), var(--purple-500));
+    color:#fff;
+    box-shadow:0 6px 16px rgba(124,58,237,0.35);
+  }
+  .navbar button.active svg{ transform:translateY(-1px); }
+
+  /* ---------- Layout ---------- */
+  main{
+    max-width:640px; margin:0 auto;
+    padding:22px 16px 90px;
+  }
+  .section{ display:none; animation:fadeUp .35s ease; }
+  .section.active{ display:block; }
+  @keyframes fadeUp{ from{opacity:0; transform:translateY(10px);} to{opacity:1; transform:translateY(0);} }
+
+  .section-head{
+    display:flex; align-items:center; justify-content:space-between;
+    margin-bottom:14px;
+  }
+  .section-head h2{ font-size:19px; font-weight:800; color:var(--purple-900); }
+  .section-head .total-badge{
+    font-size:13px; font-weight:700; color:var(--purple-700);
+    background:var(--purple-100); padding:6px 12px; border-radius:20px;
+  }
+
+  .card{
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    box-shadow:var(--shadow-sm);
+    padding:16px;
+    margin-bottom:14px;
+  }
+
+  /* ---------- Forms ---------- */
+  .form-row{ display:flex; gap:8px; flex-wrap:wrap; }
+  .form-row .field{ flex:1; min-width:120px; }
+  label.tiny{ font-size:11.5px; color:var(--text-muted); font-weight:700; display:block; margin-bottom:5px; }
+  input[type=text], input[type=number]{
+    width:100%;
+    border:1.5px solid var(--border);
+    background:var(--surface-soft);
+    border-radius:12px;
+    padding:10px 12px;
+    font-size:14.5px;
+    color:var(--text);
+    transition:border-color .2s ease, background .2s ease;
+  }
+  input:focus{ outline:none; border-color:var(--purple-500); background:#fff; }
+  .btn{
+    display:inline-flex; align-items:center; justify-content:center; gap:6px;
+    padding:11px 16px;
+    border-radius:12px;
+    font-weight:700; font-size:14px;
+    transition:transform .15s ease, box-shadow .15s ease, opacity .15s ease;
+  }
+  .btn:active{ transform:scale(0.96); }
+  .btn-primary{
+    background:linear-gradient(135deg, var(--purple-600), var(--pink));
+    color:#fff;
+    box-shadow:0 6px 16px rgba(124,58,237,0.30);
+  }
+  .btn-block{ width:100%; margin-top:12px; }
+  .btn-ghost{ background:var(--surface-soft); color:var(--purple-700); }
+
+  /* ---------- List items ---------- */
+  .item{
+    display:flex; align-items:center; gap:12px;
+    background:var(--surface);
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:13px 14px;
+    margin-bottom:10px;
+    box-shadow:var(--shadow-sm);
+  }
+  .item-icon{
+    width:38px; height:38px; border-radius:11px;
+    display:flex; align-items:center; justify-content:center;
+    flex-shrink:0;
+  }
+  .item-icon svg{ width:18px; height:18px; }
+  .item-body{ flex:1; min-width:0; }
+  .item-title{ font-weight:700; font-size:14.5px; }
+  .item-sub{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .item-amount{ font-family:'Cairo',sans-serif; font-weight:800; font-size:15px; white-space:nowrap; }
+  .item-actions{ display:flex; gap:6px; }
+  .icon-btn{
+    width:32px; height:32px; border-radius:9px;
+    display:flex; align-items:center; justify-content:center;
+    color:var(--text-muted); background:var(--surface-soft);
+    transition:all .18s ease;
+  }
+  .icon-btn svg{ width:15px; height:15px; }
+  .icon-btn.danger:hover{ background:var(--danger-soft); color:var(--danger); }
+  .icon-btn.success:hover{ background:var(--success-soft); color:var(--success); }
+
+  .empty{
+    text-align:center; padding:34px 14px; color:var(--text-muted);
+  }
+  .empty svg{ width:52px; height:52px; margin-bottom:10px; opacity:0.55; }
+  .empty p{ font-size:13.5px; }
+
+  /* ---------- Budget summary ---------- */
+  .balance-card{
+    background:linear-gradient(135deg, var(--purple-700), var(--purple-500));
+    color:#fff; border-radius:var(--radius); padding:18px;
+    margin-bottom:16px; text-align:center;
+    box-shadow:var(--shadow-md);
+  }
+  .balance-card .lbl{ font-size:12.5px; opacity:0.85; }
+  .balance-card .amt{ font-size:30px; font-weight:900; margin-top:4px; }
+  .split-row{ display:flex; gap:10px; margin-top:14px; }
+  .split-chip{
+    flex:1; background:rgba(255,255,255,0.14); border-radius:12px; padding:9px;
+  }
+  .split-chip .k{ font-size:11px; opacity:0.85; }
+  .split-chip .v{ font-weight:800; font-size:14px; margin-top:2px; }
+
+  .tabs-mini{ display:flex; gap:8px; margin-bottom:12px; }
+  .tabs-mini button{
+    flex:1; padding:9px; border-radius:11px; font-weight:700; font-size:13px;
+    background:var(--surface-soft); color:var(--text-muted);
+  }
+  .tabs-mini button.active.income{ background:var(--success-soft); color:var(--success); }
+  .tabs-mini button.active.expense{ background:var(--danger-soft); color:var(--danger); }
+
+  /* ---------- Goals ---------- */
+  .goal-card{ padding:16px; }
+  .goal-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; }
+  .goal-name{ font-weight:800; font-size:15.5px; }
+  .goal-target{ font-size:12px; color:var(--text-muted); margin-top:2px; }
+  .progress-track{
+    height:9px; background:var(--purple-100); border-radius:20px; margin-top:12px; overflow:hidden;
+  }
+  .progress-fill{
+    height:100%; border-radius:20px;
+    background:linear-gradient(90deg, var(--purple-500), var(--pink));
+    transition:width .5s ease;
+  }
+  .goal-meta{ display:flex; justify-content:space-between; margin-top:8px; font-size:12.5px; color:var(--text-muted); }
+  .goal-meta b{ color:var(--purple-700); font-family:'Cairo',sans-serif; }
+  .goal-actions{ display:flex; gap:8px; margin-top:12px; }
+  .goal-actions input{ flex:1; }
+  .goal-actions .btn{ padding:10px 14px; }
+
+  /* ---------- Toast ---------- */
+  #toast-wrap{
+    position:fixed; bottom:18px; left:50%; transform:translateX(-50%);
+    z-index:100; display:flex; flex-direction:column; gap:8px; align-items:center;
+    width:100%; padding:0 16px;
+  }
+  .toast{
+    max-width:420px; width:100%;
+    background:var(--purple-900); color:#fff;
+    padding:14px 16px; border-radius:16px;
+    font-size:13.5px; font-weight:600; text-align:center;
+    box-shadow:0 10px 30px rgba(0,0,0,0.25);
+    display:flex; align-items:center; gap:10px; justify-content:center;
+    animation:toastIn .3s ease;
+  }
+  .toast.celebrate{ background:linear-gradient(135deg, var(--purple-600), var(--pink)); }
+  @keyframes toastIn{ from{opacity:0; transform:translateY(14px) scale(0.96);} to{opacity:1; transform:translateY(0) scale(1);} }
+  .toast.leave{ animation:toastOut .25s ease forwards; }
+  @keyframes toastOut{ to{opacity:0; transform:translateY(8px) scale(0.96);} }
+
+  .completed-log{ margin-top:20px; }
+  .completed-log summary{
+    cursor:pointer; font-size:13px; font-weight:700; color:var(--text-muted);
+    padding:8px 2px; list-style:none; display:flex; align-items:center; gap:6px;
+  }
+  .completed-log summary::-webkit-details-marker{ display:none; }
+  .completed-item{
+    display:flex; justify-content:space-between; padding:9px 12px;
+    background:var(--surface-soft); border-radius:11px; margin-top:6px; font-size:12.5px;
+    color:var(--text-muted);
+  }
+  .completed-item b{ color:var(--success); }
+
+  @media (max-width:380px){
+    .hero-amount{ font-size:34px; }
+    .item-amount{ font-size:13.5px; }
+  }
+</style>
+</head>
+<body>
+
+  <div class="hero">
+    <div class="hero-top">
+      <div class="brand">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M3 8.5C3 6.567 4.567 5 6.5 5H17c1.657 0 3 1.343 3 3v.5h-2.5C15.12 8.5 14 9.62 14 11s1.12 2.5 2.5 2.5H20v.5c0 1.657-1.343 3-3 3H6.5A3.5 3.5 0 013 13.5v-5z" stroke="#fff" stroke-width="1.6" stroke-linejoin="round"/><circle cx="16.5" cy="11" r="1" fill="#fff"/></svg>
+        Flosy
+      </div>
+    </div>
+    <div class="hero-body">
+      <div class="hero-label">صافي وضعك المالي الآن</div>
+      <div class="hero-amount" id="netWorth"><span class="num">0</span><span class="unit">ج.م</span></div>
+    </div>
+    <div class="hero-stats">
+      <div class="hero-chip"><span>باقي من الميزانية</span><b id="chipBudget">0</b></div>
+      <div class="hero-chip"><span>إجمالي الديون</span><b id="chipDebts">0</b></div>
+      <div class="hero-chip"><span>أهداف نشطة</span><b id="chipGoals">0</b></div>
+    </div>
+  </div>
+
+  <nav class="navbar">
+    <button data-tab="debts" class="active">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 10h16M4 14h10M6 6h12a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+      الديون
+    </button>
+    <button data-tab="budget">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3v18M17 7.5c0-1.66-2.24-3-5-3s-5 1.34-5 3 2.24 3 5 3 5 1.34 5 3-2.24 3-5 3-5-1.34-5-3"/></svg>
+      الميزانية
+    </button>
+    <button data-tab="goals">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1" fill="currentColor"/></svg>
+      أهدافي
+    </button>
+  </nav>
+
+  <main>
+    <!-- DEBTS -->
+    <section class="section active" id="section-debts">
+      <div class="section-head">
+        <h2>ديونك</h2>
+        <span class="total-badge" id="debtsTotalBadge">0 ج.م</span>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <div class="field">
+            <label class="tiny">اسم الدين *</label>
+            <input type="text" id="debtName" placeholder="مثال: قرض من أحمد">
+          </div>
+          <div class="field">
+            <label class="tiny">المبلغ</label>
+            <input type="number" id="debtAmount" placeholder="0" min="0" step="0.01">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="addDebtBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+          إضافة دين
+        </button>
+      </div>
+      <div id="debtsList"></div>
+      <details class="completed-log" id="debtsLogWrap">
+        <summary>✅ ديون تم سدادها <span id="debtsLogCount"></span></summary>
+        <div id="debtsLog"></div>
+      </details>
+    </section>
+
+    <!-- BUDGET -->
+    <section class="section" id="section-budget">
+      <div class="section-head"><h2>ميزانية الدخل والمصروف</h2></div>
+
+      <div class="balance-card">
+        <div class="lbl">المتبقي لك هذا الشهر</div>
+        <div class="amt" id="budgetNet">0 ج.م</div>
+        <div class="split-row">
+          <div class="split-chip"><div class="k">إجمالي الدخل</div><div class="v" id="budgetIncomeSum">0</div></div>
+          <div class="split-chip"><div class="k">إجمالي المصروف</div><div class="v" id="budgetExpenseSum">0</div></div>
+        </div>
+      </div>
+
+      <div class="tabs-mini">
+        <button data-btab="income" class="active income">➕ دخل</button>
+        <button data-btab="expense" class="expense">➖ مصروف</button>
+      </div>
+
+      <div class="card">
+        <div class="form-row">
+          <div class="field">
+            <label class="tiny" id="budgetNameLabel">اسم مصدر الدخل</label>
+            <input type="text" id="budgetName" placeholder="مثال: مرتب">
+          </div>
+          <div class="field">
+            <label class="tiny">المبلغ</label>
+            <input type="number" id="budgetAmount" placeholder="0" min="0" step="0.01">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="addBudgetBtn">إضافة</button>
+      </div>
+
+      <div id="budgetList"></div>
+    </section>
+
+    <!-- GOALS -->
+    <section class="section" id="section-goals">
+      <div class="section-head">
+        <h2>أهداف شرائية</h2>
+      </div>
+      <div class="card">
+        <div class="form-row">
+          <div class="field">
+            <label class="tiny">اسم الهدف *</label>
+            <input type="text" id="goalName" placeholder="مثال: لابتوب جديد">
+          </div>
+          <div class="field">
+            <label class="tiny">السعر المطلوب</label>
+            <input type="number" id="goalAmount" placeholder="0" min="0" step="0.01">
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" id="addGoalBtn">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 5v14M5 12h14"/></svg>
+          إضافة هدف
+        </button>
+      </div>
+      <div id="goalsList"></div>
+      <details class="completed-log" id="goalsLogWrap">
+        <summary>🎉 أهداف تحققت <span id="goalsLogCount"></span></summary>
+        <div id="goalsLog"></div>
+      </details>
+    </section>
+  </main>
+
+  <div id="toast-wrap"></div>
+
+<script>
+(function(){
+  const STORAGE_KEY = 'flosy-app-data';
+  const state = { debts:[], income:[], expenses:[], goals:[], debtsLog:[], goalsLog:[] };
+  let budgetMode = 'income';
+  let saveTimer = null;
+
+  const el = id => document.getElementById(id);
+  const fmt = n => new Intl.NumberFormat('ar-EG', {maximumFractionDigits:2}).format(n||0);
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2,7);
+  const todayStr = () => new Date().toLocaleDateString('ar-EG', {year:'numeric', month:'long', day:'numeric'});
+
+  const DEBT_MESSAGES = [
+    "🎉 برافو عليك! سددت الدين وخفّفت حِمل كبير عن كتفك.",
+    "💪 خطوة جبارة! كل دين بتقفله بيقربك من الحرية المالية.",
+    "🌟 فخورين بيك! الانضباط ده هو اللي بيبني مستقبل مريح.",
+    "🔥 كده! دين واحد أقل يعني نوم أهنأ الليلة.",
+    "🚀 استمر بنفس الطاقة، أنت بتبني عادة مالية ممتازة.",
+    "🙌 إنجاز حقيقي! كل جنيه سددته كان قرار صح.",
+    "✨ حرية أكتر، قلق أقل. مبروك تسديد الدين ده.",
+    "🏆 أنت رسمياً أقرب لهدفك المالي من إمبارح."
+  ];
+  const GOAL_MESSAGES = [
+    "🎊 مبروك! جمعت المبلغ كامل، الهدف بقى حقيقي دلوقتي.",
+    "🥳 وصلت للمبلغ! استاهلت كل قرش وفرته.",
+    "🏅 تهانينا! الصبر والتوفير أثمروا، روح احتفل بيها.",
+    "💜 حلمك بقى في إيدك، مبروك تحقيق الهدف.",
+    "🎯 هدف مكتمل 100%! أنت فعلاً بتعرف تدير فلوسك.",
+    "🌈 من التوفير للتحقيق، رحلة جميلة خلصت بمبروك.",
+    "🎁 استمتع بيه، استحقيته بجد.",
+    "⭐ إنجاز يستاهل يتسجل، مبروك عليك!"
+  ];
+
+  function randomFrom(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+  function showToast(msg, celebrate){
+    const wrap = el('toast-wrap');
+    const t = document.createElement('div');
+    t.className = 'toast' + (celebrate ? ' celebrate' : '');
+    t.textContent = msg;
+    wrap.appendChild(t);
+    setTimeout(()=>{ t.classList.add('leave'); setTimeout(()=>t.remove(), 250); }, 3800);
+  }
+
+  async function loadData(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, false);
+      if(res && res.value){
+        const parsed = JSON.parse(res.value);
+        Object.assign(state, parsed);
+      }
+    }catch(e){ /* no data yet */ }
+    renderAll();
+  }
+
+  function persist(){
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async ()=>{
+      try{ await window.storage.set(STORAGE_KEY, JSON.stringify(state), false); }
+      catch(e){ console.error('storage save failed', e); }
+    }, 200);
+  }
+
+  /* ---------------- TABS ---------------- */
+  document.querySelectorAll('.navbar button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('.navbar button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+      el('section-'+btn.dataset.tab).classList.add('active');
+    });
+  });
+
+  document.querySelectorAll('.tabs-mini button').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      budgetMode = btn.dataset.btab;
+      document.querySelectorAll('.tabs-mini button').forEach(b=>b.classList.remove('active'));
+      btn.classList.add('active');
+      el('budgetNameLabel').textContent = budgetMode === 'income' ? 'اسم مصدر الدخل' : 'اسم المصروف';
+      el('budgetName').placeholder = budgetMode === 'income' ? 'مثال: مرتب' : 'مثال: مواصلات';
+      renderBudget();
+    });
+  });
+
+  /* ---------------- DEBTS ---------------- */
+  el('addDebtBtn').addEventListener('click', ()=>{
+    const name = el('debtName').value.trim();
+    const amount = parseFloat(el('debtAmount').value);
+    if(!name){ el('debtName').focus(); el('debtName').style.borderColor='var(--danger)'; setTimeout(()=>el('debtName').style.borderColor='',900); return; }
+    state.debts.push({ id:uid(), name, amount: isNaN(amount)?0:amount, date: todayStr() });
+    el('debtName').value=''; el('debtAmount').value='';
+    persist(); renderDebts(); renderHero();
+  });
+
+  function renderDebts(){
+    const list = el('debtsList');
+    const total = state.debts.reduce((s,d)=>s+d.amount,0);
+    el('debtsTotalBadge').textContent = fmt(total) + ' ج.م';
+    if(state.debts.length===0){
+      list.innerHTML = `<div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 10h16M4 14h10M6 6h12a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+        <p>لا توجد ديون مسجّلة حالياً. أضف أول دين لتتابعه.</p></div>`;
+    } else {
+      list.innerHTML = state.debts.map(d => `
+        <div class="item">
+          <div class="item-icon" style="background:var(--purple-100); color:var(--purple-700);">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 10h16M4 14h10M6 6h12a2 2 0 012 2v8a2 2 0 01-2 2H6a2 2 0 01-2-2V8a2 2 0 012-2z"/></svg>
+          </div>
+          <div class="item-body">
+            <div class="item-title">${escapeHtml(d.name)}</div>
+            <div class="item-sub">سُجّل في ${d.date}</div>
+          </div>
+          <div class="item-amount" style="color:var(--purple-700)">${fmt(d.amount)} ج.م</div>
+          <div class="item-actions">
+            <button class="icon-btn success" title="تم السداد" data-complete-debt="${d.id}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12l5 5L20 6"/></svg>
+            </button>
+            <button class="icon-btn danger" title="حذف" data-del-debt="${d.id}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+          </div>
+        </div>`).join('');
+    }
+    list.querySelectorAll('[data-del-debt]').forEach(b=>b.addEventListener('click', ()=>{
+      state.debts = state.debts.filter(d=>d.id!==b.dataset.delDebt);
+      persist(); renderDebts(); renderHero();
+    }));
+    list.querySelectorAll('[data-complete-debt]').forEach(b=>b.addEventListener('click', ()=>{
+      const idx = state.debts.findIndex(d=>d.id===b.dataset.completeDebt);
+      if(idx>-1){
+        const d = state.debts[idx];
+        state.debtsLog.unshift({ name:d.name, amount:d.amount, date: todayStr() });
+        state.debts.splice(idx,1);
+        persist(); renderDebts(); renderHero();
+        showToast(randomFrom(DEBT_MESSAGES), true);
+      }
+    }));
+    renderDebtsLog();
+  }
+
+  function renderDebtsLog(){
+    el('debtsLogCount').textContent = state.debtsLog.length ? `(${state.debtsLog.length})` : '';
+    el('debtsLogWrap').style.display = state.debtsLog.length ? 'block' : 'none';
+    el('debtsLog').innerHTML = state.debtsLog.map(d=>`
+      <div class="completed-item"><span>${escapeHtml(d.name)}</span><b>${fmt(d.amount)} ج.م</b></div>`).join('');
+  }
+
+  /* ---------------- BUDGET ---------------- */
+  el('addBudgetBtn').addEventListener('click', ()=>{
+    const name = el('budgetName').value.trim();
+    const amount = parseFloat(el('budgetAmount').value);
+    if(!name){ el('budgetName').focus(); el('budgetName').style.borderColor='var(--danger)'; setTimeout(()=>el('budgetName').style.borderColor='',900); return; }
+    const entry = { id:uid(), name, amount: isNaN(amount)?0:amount };
+    if(budgetMode==='income') state.income.push(entry); else state.expenses.push(entry);
+    el('budgetName').value=''; el('budgetAmount').value='';
+    persist(); renderBudget(); renderHero();
+  });
+
+  function renderBudget(){
+    const incomeSum = state.income.reduce((s,i)=>s+i.amount,0);
+    const expenseSum = state.expenses.reduce((s,i)=>s+i.amount,0);
+    const net = incomeSum - expenseSum;
+    el('budgetIncomeSum').textContent = fmt(incomeSum);
+    el('budgetExpenseSum').textContent = fmt(expenseSum);
+    el('budgetNet').textContent = fmt(net) + ' ج.م';
+
+    const list = el('budgetList');
+    const items = budgetMode==='income' ? state.income : state.expenses;
+    const isIncome = budgetMode==='income';
+    if(items.length===0){
+      list.innerHTML = `<div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 3v18M17 7.5c0-1.66-2.24-3-5-3s-5 1.34-5 3 2.24 3 5 3 5 1.34 5 3-2.24 3-5 3-5-1.34-5-3"/></svg>
+        <p>${isIncome? 'لسه معنديش دخل مسجّل. أضف أول مصدر دخل.' : 'لسه معندكش مصروفات مسجّلة.'}</p></div>`;
+      return;
+    }
+    list.innerHTML = items.map(i => `
+      <div class="item">
+        <div class="item-icon" style="background:${isIncome?'var(--success-soft)':'var(--danger-soft)'}; color:${isIncome?'var(--success)':'var(--danger)'};">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4">${isIncome? '<path d="M12 19V5M5 12l7-7 7 7"/>' : '<path d="M12 5v14M5 12l7 7 7-7"/>'}</svg>
+        </div>
+        <div class="item-body"><div class="item-title">${escapeHtml(i.name)}</div></div>
+        <div class="item-amount" style="color:${isIncome?'var(--success)':'var(--danger)'}">${isIncome?'+':'-'}${fmt(i.amount)} ج.م</div>
+        <div class="item-actions">
+          <button class="icon-btn danger" title="حذف" data-del-budget="${i.id}">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+          </button>
+        </div>
+      </div>`).join('');
+    list.querySelectorAll('[data-del-budget]').forEach(b=>b.addEventListener('click', ()=>{
+      const arr = isIncome ? state.income : state.expenses;
+      const filtered = arr.filter(x=>x.id!==b.dataset.delBudget);
+      if(isIncome) state.income = filtered; else state.expenses = filtered;
+      persist(); renderBudget(); renderHero();
+    }));
+  }
+
+  /* ---------------- GOALS ---------------- */
+  el('addGoalBtn').addEventListener('click', ()=>{
+    const name = el('goalName').value.trim();
+    const amount = parseFloat(el('goalAmount').value);
+    if(!name){ el('goalName').focus(); el('goalName').style.borderColor='var(--danger)'; setTimeout(()=>el('goalName').style.borderColor='',900); return; }
+    state.goals.push({ id:uid(), name, target: isNaN(amount)?0:amount, saved:0 });
+    el('goalName').value=''; el('goalAmount').value='';
+    persist(); renderGoals(); renderHero();
+  });
+
+  function renderGoals(){
+    const list = el('goalsList');
+    if(state.goals.length===0){
+      list.innerHTML = `<div class="empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/></svg>
+        <p>مفيش أهداف شرائية دلوقتي. ضيف حاجة بتحلم بيها وابدأ توفّر ليها.</p></div>`;
+    } else {
+      list.innerHTML = state.goals.map(g=>{
+        const pct = g.target>0 ? Math.min(100, (g.saved/g.target)*100) : 0;
+        const remaining = Math.max(0, g.target - g.saved);
+        return `
+        <div class="card goal-card">
+          <div class="goal-top">
+            <div>
+              <div class="goal-name">${escapeHtml(g.name)}</div>
+              <div class="goal-target">السعر: ${fmt(g.target)} ج.م</div>
+            </div>
+            <button class="icon-btn danger" title="حذف" data-del-goal="${g.id}">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
+            </button>
+          </div>
+          <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
+          <div class="goal-meta"><span>تم جمع <b>${fmt(g.saved)}</b> ج.م</span><span>باقي <b>${fmt(remaining)}</b> ج.م</span></div>
+          <div class="goal-actions">
+            <input type="number" min="0" step="0.01" placeholder="حدّث المبلغ المجموع" data-goal-input="${g.id}" value="${g.saved || ''}">
+            <button class="btn btn-primary" data-update-goal="${g.id}">تحديث</button>
+          </div>
+        </div>`;
+      }).join('');
+    }
+    list.querySelectorAll('[data-del-goal]').forEach(b=>b.addEventListener('click', ()=>{
+      state.goals = state.goals.filter(g=>g.id!==b.dataset.delGoal);
+      persist(); renderGoals(); renderHero();
+    }));
+    list.querySelectorAll('[data-update-goal]').forEach(b=>b.addEventListener('click', ()=>{
+      const id = b.dataset.updateGoal;
+      const input = list.querySelector(`[data-goal-input="${id}"]`);
+      const val = parseFloat(input.value);
+      const g = state.goals.find(x=>x.id===id);
+      if(!g) return;
+      g.saved = isNaN(val) ? 0 : Math.max(0, val);
+      if(g.saved >= g.target && g.target > 0){
+        state.goalsLog.unshift({ name:g.name, amount:g.target, date: todayStr() });
+        state.goals = state.goals.filter(x=>x.id!==id);
+        showToast(randomFrom(GOAL_MESSAGES), true);
+      }
+      persist(); renderGoals(); renderHero();
+    }));
+    renderGoalsLog();
+  }
+
+  function renderGoalsLog(){
+    el('goalsLogCount').textContent = state.goalsLog.length ? `(${state.goalsLog.length})` : '';
+    el('goalsLogWrap').style.display = state.goalsLog.length ? 'block' : 'none';
+    el('goalsLog').innerHTML = state.goalsLog.map(g=>`
+      <div class="completed-item"><span>${escapeHtml(g.name)}</span><b>${fmt(g.amount)} ج.م</b></div>`).join('');
+  }
+
+  /* ---------------- HERO / STATS ---------------- */
+  function renderHero(){
+    const debtsTotal = state.debts.reduce((s,d)=>s+d.amount,0);
+    const incomeSum = state.income.reduce((s,i)=>s+i.amount,0);
+    const expenseSum = state.expenses.reduce((s,i)=>s+i.amount,0);
+    const budgetNet = incomeSum - expenseSum;
+    const net = budgetNet - debtsTotal;
+
+    el('netWorth').innerHTML = `<span class="num">${fmt(net)}</span><span class="unit">ج.م</span>`;
+    el('chipBudget').textContent = fmt(budgetNet);
+    el('chipDebts').textContent = fmt(debtsTotal);
+    el('chipGoals').textContent = state.goals.length;
+  }
+
+  function escapeHtml(str){
+    const d = document.createElement('div');
+    d.textContent = str;
+    return d.innerHTML;
+  }
+
+  function renderAll(){
+    renderDebts();
+    renderBudget();
+    renderGoals();
+    renderHero();
+  }
+
+  loadData();
+})();
+</script>
+</body>
+</html>
